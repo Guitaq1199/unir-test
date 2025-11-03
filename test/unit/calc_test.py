@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 import pytest
 
-from app.calc import Calculator
+from app.calc import Calculator, InvalidPermissions
 
 
 def mocked_validation(*args, **kwargs):
@@ -69,6 +69,21 @@ class TestCalculate(unittest.TestCase):
     def test_log10_method_fails_with_non_positive(self):
         self.assertRaises(TypeError, self.calc.log10, 0)
         self.assertRaises(TypeError, self.calc.log10, -10)
+
+    def test_substract_method_returns_correct_result(self):
+        self.assertEqual(0, self.calc.substract(2, 2))
+        self.assertEqual(4, self.calc.substract(2, -2))
+        self.assertEqual(-4, self.calc.substract(-2, 2))
+        self.assertEqual(1, self.calc.substract(1, 0))
+
+    def test_substract_method_fails_with_nan_parameter(self):
+        self.assertRaises(TypeError, self.calc.substract, "2", 2)
+        self.assertRaises(TypeError, self.calc.substract, 2, "2")
+        self.assertRaises(TypeError, self.calc.substract, "2", "2")
+
+    @patch('app.util.validate_permissions', return_value=False, create=True)
+    def test_multiply_method_fails_on_permission(self, _validate_permissions):
+        self.assertRaises(InvalidPermissions, self.calc.multiply, 2, 2)
 
 
 if __name__ == "__main__":  # pragma: no cover
